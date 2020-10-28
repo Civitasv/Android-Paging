@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 
 import com.example.pagingtest.datasource.GithubDataSource;
+import com.example.pagingtest.listener.NetworkState;
 import com.example.pagingtest.model.GithubRes;
 import com.example.pagingtest.service.RetrofitServiceFactory;
 
@@ -17,16 +18,18 @@ public class GithubDataSourceFactory extends DataSource.Factory<Integer, GithubR
     private MutableLiveData<GithubDataSource> mGithubDataSource = new MutableLiveData<>();
     private String query;
     private String sort;
+    private NetworkState networkState;
 
-    public GithubDataSourceFactory(String query, String sort) {
+    public GithubDataSourceFactory(String query, String sort, NetworkState networkState) {
         this.query = query;
         this.sort = sort;
+        this.networkState = networkState;
     }
 
     @NonNull
     @Override
     public DataSource<Integer, GithubRes.Item> create() {
-        GithubDataSource githubDataSource = new GithubDataSource(RetrofitServiceFactory.getInstance().getGithubService(),query,sort);
+        GithubDataSource githubDataSource = new GithubDataSource(RetrofitServiceFactory.getInstance().getGithubService(), query, sort, networkState);
         mGithubDataSource.postValue(githubDataSource);
         return githubDataSource;
     }

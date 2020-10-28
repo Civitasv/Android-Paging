@@ -17,7 +17,8 @@ public class RetrofitServiceFactory {
 
     private RetrofitServiceFactory() {
         OkHttpClient okHttpClient = new OkHttpClient().newBuilder()//
-                .retryOnConnectionFailure(true)
+                .connectTimeout(2, TimeUnit.SECONDS)
+                .readTimeout(2, TimeUnit.SECONDS)
                 .build();
         retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())

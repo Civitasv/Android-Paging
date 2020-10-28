@@ -56,4 +56,9 @@ dependencies {
     }
 
     implementation 'de.hdodenhof:circleimageview:3.1.0' // 圆图
+
+    implementation "com.google.android.material:material:1.2.1" // snack bar
+
+    implementation 'com.scwang.smart:refresh-layout-kernel:2.0.1'      //核心必须依赖
+    implementation 'com.scwang.smart:refresh-header-classics:2.0.1'    //经典刷新头
 }
