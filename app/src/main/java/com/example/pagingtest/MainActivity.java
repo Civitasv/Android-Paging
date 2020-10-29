@@ -1,19 +1,15 @@
 package com.example.pagingtest;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pagingtest.adapter.GithubPagedAdapter;
 import com.example.pagingtest.listener.NetworkState;
@@ -22,9 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.scwang.smart.refresh.footer.ClassicsFooter;
 import com.scwang.smart.refresh.header.ClassicsHeader;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
-import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.constant.RefreshState;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,9 +40,7 @@ public class MainActivity extends AppCompatActivity {
         SmartRefreshLayout refresh = findViewById(R.id.refreshLayout);
         refresh.setRefreshHeader(new ClassicsHeader(this));
         refresh.setRefreshFooter(new ClassicsFooter(this));
-        refresh.setOnRefreshListener(refreshLayout -> {
-            mainViewModel.invalidate();
-        });
+        refresh.setOnRefreshListener(refreshLayout -> mainViewModel.invalidate());
         mainViewModel.setNetworkState(new NetworkState() {
             @Override
             public void onSuccess() {
@@ -56,20 +48,20 @@ public class MainActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                     if (refresh.getState() == RefreshState.Refreshing)
                         refresh.finishRefresh(true);
-                    if (refresh.getState() == RefreshState.Loading)
+                    if (refresh.getState() == RefreshState.Loading) {
                         refresh.finishLoadMore(true);
+                        refresh.setOnLoadMoreListener(null);
+                    }
                 });
             }
 
             @Override
             public void onLoading() {
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                });
+                runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
             }
 
             @Override
-            public void onLoadMoreError(Runnable runnable, String errorMessage) {
+            public void onLoadAfterError(Runnable runnable, String errorMessage) {
                 runOnUiThread(() -> {
                     if (refresh.getState() == RefreshState.Loading)
                         refresh.finishLoadMore(false);
@@ -78,15 +70,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onRefreshError(Runnable runnable, String errorMessage) {
+            public void onFinish() {
+                runOnUiThread(refresh::finishLoadMoreWithNoMoreData);
+            }
+
+            @Override
+            public void onLoadInitialError(Runnable runnable, String errorMessage) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                });
-                runOnUiThread(() -> {
                     if (refresh.getState() == RefreshState.Refreshing)
                         refresh.finishRefresh(false);
                 });
-                Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(findViewById(android.R.id.content), errorMessage, Snackbar.LENGTH_LONG)
                         .setAction("RETRY", view -> executorService.submit(runnable)).show();
             }
         });
@@ -100,9 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setRecyclerView(RecyclerView recyclerView) {
         mGithubPagedAdapter = new GithubPagedAdapter(this);
-        mainViewModel.getItemPagedList().observe(this, items -> {
-            mGithubPagedAdapter.submitList(items);
-        });
+        mainViewModel.getItemPagedList().observe(this, items -> mGithubPagedAdapter.submitList(items));
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mGithubPagedAdapter);

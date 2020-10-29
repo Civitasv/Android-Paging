@@ -12,9 +12,12 @@ public interface NetworkState {
     // 加载中
     void onLoading();
 
-    // 分页加载失败
-    void onLoadMoreError(Runnable runnable, String errorMessage);
+    // 初始加载|下拉刷新
+    void onLoadInitialError(Runnable runnable, String errorMessage);
 
-    // 刷新失败
-    void onRefreshError(Runnable runnable, String errorMessage);
+    // 分页加载|上拉加载
+    void onLoadAfterError(Runnable runnable, String errorMessage);
+
+    // 数据加载是否完成
+    void onFinish();
 }
