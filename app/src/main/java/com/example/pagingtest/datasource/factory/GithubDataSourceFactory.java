@@ -18,18 +18,18 @@ public class GithubDataSourceFactory extends DataSource.Factory<Integer, GithubR
     private MutableLiveData<GithubDataSource> mGithubDataSource = new MutableLiveData<>();
     private String query;
     private String sort;
-    private NetworkState networkState;
+    private NetworkState mNetworkState;
 
     public GithubDataSourceFactory(String query, String sort, NetworkState networkState) {
         this.query = query;
         this.sort = sort;
-        this.networkState = networkState;
+        this.mNetworkState = networkState;
     }
 
     @NonNull
     @Override
     public DataSource<Integer, GithubRes.Item> create() {
-        GithubDataSource githubDataSource = new GithubDataSource(RetrofitServiceFactory.getInstance().getGithubService(), query, sort, networkState);
+        GithubDataSource githubDataSource = new GithubDataSource(RetrofitServiceFactory.getInstance().getGithubService(), query, sort, mNetworkState);
         mGithubDataSource.postValue(githubDataSource);
         return githubDataSource;
     }

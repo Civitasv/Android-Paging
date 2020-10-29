@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         refresh.setRefreshHeader(new ClassicsHeader(this));
         refresh.setRefreshFooter(new ClassicsFooter(this));
         refresh.setOnRefreshListener(refreshLayout -> mainViewModel.invalidate());
+        refresh.setEnableLoadMoreWhenContentNotFull(false);
         mainViewModel.setNetworkState(new NetworkState() {
             @Override
             public void onSuccess() {

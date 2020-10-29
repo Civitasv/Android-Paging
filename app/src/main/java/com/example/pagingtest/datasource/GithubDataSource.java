@@ -27,31 +27,31 @@ public class GithubDataSource extends PageKeyedDataSource<Integer, GithubRes.Ite
     private GithubService githubService;
     private String query;
     private String sort;
-    private NetworkState networkState;
+    private NetworkState mNetworkState;
 
     public GithubDataSource(GithubService githubService, String query, String sort, NetworkState networkState) {
         this.githubService = githubService;
         this.query = query;
         this.sort = sort;
-        this.networkState = networkState;
+        this.mNetworkState = networkState;
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, GithubRes.Item> callback) {
-        networkState.onLoading();
+        mNetworkState.onLoading();
         Call<GithubRes> call = githubService.query(query, sort, FIRST_PAGE, PAGE_SIZE);
         try {
             Response<GithubRes> resResponse = call.execute();
             GithubRes res = resResponse.body();
 
             if (res != null) {
-                networkState.onSuccess();
+                mNetworkState.onSuccess();
                 callback.onResult(res.items, null, FIRST_PAGE + 1);
             } else
-                networkState.onLoadInitialError(() -> loadInitial(params, callback), "访问错误！");
+                mNetworkState.onLoadInitialError(() -> loadInitial(params, callback), "请求错误！");
         } catch (IOException e) {
             e.printStackTrace();
-            networkState.onLoadInitialError(() -> loadInitial(params, callback), e.getMessage());
+            mNetworkState.onLoadInitialError(() -> loadInitial(params, callback), e.getMessage());
         }
     }
 
@@ -66,19 +66,19 @@ public class GithubDataSource extends PageKeyedDataSource<Integer, GithubRes.Ite
         try {
             GithubRes res = call.execute().body();
             if (res != null) {
-                networkState.onSuccess();
+                mNetworkState.onSuccess();
                 if (!res.complete)
                     callback.onResult(res.items, params.key + 1);
                 else {
                     callback.onResult(res.items, null);
-                    networkState.onFinish();
+                    mNetworkState.onFinish();
                 }
             } else
-                networkState.onLoadAfterError(() -> loadAfter(params, callback), "访问错误！");
+                mNetworkState.onLoadAfterError(() -> loadAfter(params, callback), "请求错误！");
         } catch (IOException e) {
             e.printStackTrace();
             // 回调
-            networkState.onLoadAfterError(() -> loadAfter(params, callback), e.getMessage());
+            mNetworkState.onLoadAfterError(() -> loadAfter(params, callback), e.getMessage());
         }
     }
 }
